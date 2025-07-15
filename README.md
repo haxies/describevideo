@@ -1,7 +1,7 @@
-# GrokVideoSummarizer
+# DescribeVideo
 
 ## Description
-GrokVideoSummarizer is an open-source Python tool that enables users to analyze and summarize short videos (e.g., 8-second clips) using the xAI Grok-4 API. It works by extracting frames from a video at a configurable interval (default: 2 frames per second), sending each frame to the Grok-4 model for detailed description, and then combining these descriptions into a cohesive summary of the video's content and events. This is particularly useful for sharing video context with LLMs that don't support direct video uploads, by converting videos into AI-interpretable frame-based narratives.
+Analyze and summarize short videos (e.g., 8-second clips) using the xAI Grok-4 API. It works by extracting frames from a video at a configurable interval (default: 2 frames per second), sending each frame to the Grok-4 model for detailed description, and then combining these descriptions into a cohesive summary of the video's content and events. This is particularly useful for sharing video context with LLMs that don't support direct video uploads, by converting videos into AI-interpretable frame-based narratives.
 
 ## Features
 - Extracts frames from local video files using OpenCV.
@@ -13,8 +13,8 @@ GrokVideoSummarizer is an open-source Python tool that enables users to analyze 
 ## Installation
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/GrokVideoSummarizer.git
-   cd GrokVideoSummarizer
+   git clone https://github.com/haxies/describevideo.git
+   cd describevideo
    ```
 
 2. Install dependencies:
