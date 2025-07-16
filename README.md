@@ -27,9 +27,11 @@ Analyze and summarize short videos (e.g., 8-second clips) using the xAI Grok-4 A
    - On Windows: `set XAI_API_KEY=your_api_key_here`
    
    Alternatively, hardcode it in the script (not recommended for shared code).
+   
+4. Customize other settings in config.json as needed (e.g., video path, frame interval).
 
 ## Usage
-1. Place your video file (e.g., `video.mp4`) in the same directory as the script.
+1. Place your video file (e.g., video.mp4) in the same directory as the script, or update the path in config.json.
 
 2. Run the script:
    ```
@@ -44,9 +46,10 @@ Analyze and summarize short videos (e.g., 8-second clips) using the xAI Grok-4 A
 Example output:
 ```
 Extracting frames...
-Analyzing 16 frames...
-Describing frame 1...
+Saved frame: frames/frame_000.jpg
 ...
+Analyzing 16 frames in parallel (up to 8 at a time)...
+Analyzing frames: 100%|██████████| 16/16 [00:10<00:00, 1.60it/s]
 Summarizing the video...
 
 Video Summary:
@@ -54,8 +57,11 @@ Video Summary:
 ```
 
 ### Customization
-- Adjust the frame extraction interval in `extract_frames` (e.g., `interval=0.5` for 2 frames/second).
-- Modify prompts in `describe_image` or `summarize_video` for tailored descriptions.
+-Edit config.json for all settings, such as:
+-frame_interval: Time between frames (e.g., 0.5 for 2 frames/second).
+-max_workers: Number of parallel threads for API calls.
+-describe_prompt and summarize_prompt: Customize AI prompts.
+-video_path: Path to your video file.
 
 ## Requirements
 This project requires Python 3.8+ and access to the xAI API (Grok-4 model, which may need a subscription).
