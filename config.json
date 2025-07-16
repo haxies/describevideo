@@ -1,0 +1,12 @@
+{
+    "api_key": "",
+    "base_url": "https://api.x.ai/v1",
+    "model": "grok-4",
+    "frame_interval": 0.5,
+    "max_workers": 8,
+    "describe_prompt": "Describe what's happening in this image in detail.",
+    "summarize_prompt": "Summarize the overall context and events of the video based on these frame descriptions:\n{combined_text}",
+    "describe_max_tokens": 500,
+    "summarize_max_tokens": 1000,
+    "video_path": "video.mp4"
+}
