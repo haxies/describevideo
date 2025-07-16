@@ -1,20 +1,22 @@
 import cv2
 import base64
 import os
+import json
 from openai import OpenAI
 import concurrent.futures
 from tqdm import tqdm
 
-# Hardcode your xAI API key here
-api_key = "your-api-key"  # Replace this with your real API key
+# Load configuration from config.json
+with open('config.json', 'r') as config_file:
+    config = json.load(config_file)
 
 # Initialize the OpenAI client with xAI base URL
 client = OpenAI(
-    api_key=api_key,
-    base_url="https://api.x.ai/v1",
+    api_key=config['api_key'],
+    base_url=config['base_url'],
 )
 
-def extract_frames(video_path, interval=0.5):
+def extract_frames(video_path, interval):
     """
     Extract frames from the video at the given interval (in seconds).
     Returns a list of base64 encoded images.
@@ -54,17 +56,17 @@ def extract_frames(video_path, interval=0.5):
     cap.release()
     return frames
 
-def describe_image(base64_image, prompt="Describe what's happening in this image in detail."):
+def describe_image(base64_image):
     """
     Send the base64 image to the Grok API for description.
     """
     response = client.chat.completions.create(
-        model="grok-4",
+        model=config['model'],
         messages=[
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": prompt},
+                    {"type": "text", "text": config['describe_prompt']},
                     {
                         "type": "image_url",
                         "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
@@ -72,7 +74,7 @@ def describe_image(base64_image, prompt="Describe what's happening in this image
                 ]
             }
         ],
-        max_tokens=500,  # Adjust as needed
+        max_tokens=config['describe_max_tokens'],  # Adjust as needed in config
     )
     return response.choices[0].message.content
 
@@ -81,27 +83,27 @@ def summarize_video(descriptions):
     Summarize the video based on the frame descriptions.
     """
     combined_text = "\n".join([f"Frame {i+1}: {desc}" for i, desc in enumerate(descriptions)])
-    prompt = f"Summarize the overall context and events of the video based on these frame descriptions:\n{combined_text}"
+    prompt = config['summarize_prompt'].format(combined_text=combined_text)
     
     response = client.chat.completions.create(
-        model="grok-4",
+        model=config['model'],
         messages=[
             {"role": "user", "content": prompt}
         ],
-        max_tokens=1000,  # Adjust as needed
+        max_tokens=config['summarize_max_tokens'],  # Adjust as needed in config
     )
     return response.choices[0].message.content
 
 # Main function
-def describe_video(video_path):
+def describe_video(video_path, interval, max_workers):
     print("Extracting frames...")
-    frames = extract_frames(video_path, interval=0.5)  # Two frames per second (interval of 0.5 seconds)
+    frames = extract_frames(video_path, interval)
     
     print(f"Analyzing...")
     
     # Use multithreading to describe frames in parallel with progress bar
     descriptions = [None] * len(frames)  # Placeholder to preserve order
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_index = {executor.submit(describe_image, frame): i for i, frame in enumerate(frames)}
         with tqdm(total=len(frames), desc="Analyzing frames") as pbar:
             for future in concurrent.futures.as_completed(future_to_index):
@@ -119,9 +121,12 @@ def describe_video(video_path):
 
 # Example usage
 if __name__ == "__main__":
-    video_path = "video.mp4"  # The video is in the same folder as this script
     try:
-        video_summary = describe_video(video_path)
+        video_summary = describe_video(
+            config['video_path'],
+            config['frame_interval'],
+            config['max_workers']
+        )
         print("\nVideo Summary:\n")
         print(video_summary)
     except Exception as e:
